@@ -16,6 +16,7 @@ class ViewController: UIViewController, TiledScrollViewDataSource {
         // Do any additional setup after loading the view, typically from a nib.
         
         tiledScrollView?.tiledScrollViewDataSource = self
+        tiledScrollView?.bouncesZoom = true
         tiledScrollView?.reloadData(Constants.MapSize)
     }
 
@@ -25,7 +26,7 @@ class ViewController: UIViewController, TiledScrollViewDataSource {
     }
 
     // MARK: - TiledScrollView DataSource Methods
-    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: UInt) -> UIView {
+    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: Int) -> UIView {
         // The resolution is stored as a power of 2, so -1 means 50%, -2 means 25%, and 0 means 100%.
         // We've named the tiles things like BlackLagoon_50_0_2.png, where the 50 represents 50% resolution.
         let tileName = "\(Constants.MapName)_\((Int(-1) * Int(resolution)))_\(row)_\(column).jpg"

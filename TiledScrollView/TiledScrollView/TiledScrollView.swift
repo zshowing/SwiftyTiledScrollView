@@ -12,15 +12,15 @@ public protocol TiledScrollViewDelegate{
 }
 
 public protocol TiledScrollViewDataSource{
-    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: UInt) -> UIView
+    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: Int) -> UIView
 }
 
 public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
     internal var totalTiles                 = 0
     // we will recycle tiles by removing them from the view and storing them here
     internal var reusableTiles: Set<UIView> = Set<UIView>()
-    internal var maximumResolution: UInt    = 0
-    internal var minimumResolution: UInt    = 0
+    internal var maximumResolution: Int    = 0
+    internal var minimumResolution: Int    = 0
     // no rows or columns are visible at first; note this by making the firsts very high and the lasts very low
     internal var firstVisibleRow: UInt      = UInt.max
     internal var firstVisibleColumn: UInt   = UInt.max
@@ -37,7 +37,7 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
     
     public var tileSize: CGSize = CGSizeMake(Constants.MapViewTileSize, Constants.MapViewTileSize)
     public var mapSize: CGSize  = CGSizeZero
-    public var resolution: UInt = 0
+    public var resolution: Int = 0
     public var tiledScrollViewDelegate: TiledScrollViewDelegate?
     public var tiledScrollViewDataSource: TiledScrollViewDataSource?
     
@@ -86,6 +86,24 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         self.contentSize = _contentSize
         
         self.tileContainerView.frame = CGRectMake(0, 0, _contentSize.width, _contentSize.height)
+        
+        self.minimumResolution = {
+            var w =  _contentSize.width
+            var h = _contentSize.height
+            var res: Int = 0
+            
+            while w > CGRectGetWidth(self.frame) && h > CGRectGetHeight(self.frame){
+                w = _contentSize.width * pow(CGFloat(2), CGFloat(--res))
+                h = _contentSize.height * pow(CGFloat(2), CGFloat(res))
+            }
+            return ++res
+            }()
+        self.minimumZoomScale = max(CGRectGetWidth(self.frame) / _contentSize.width, CGRectGetHeight(self.frame) / _contentSize.height)
+        self.zoomScale = self.minimumZoomScale
+        
+        self.contentOffset = CGPointMake((_contentSize.width * self.minimumZoomScale - CGRectGetWidth(self.frame)) / 2, (_contentSize.height * self.minimumZoomScale - CGRectGetHeight(self.frame)) / 2)
+        
+        self.updateResolution()
     }
     
     public func dequeueReusableTile() -> UIView?{
@@ -203,6 +221,8 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         firstVisibleColumn = firstNeededCol
         lastVisibleRow  = lastNeededRow
         lastVisibleColumn  = lastNeededCol
+        
+        level = self.currentLevel()
     }
     
     /*****************************************************************************************/
@@ -215,10 +235,10 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         // delta will store the number of steps we should change our resolution by. If we've fallen below
         // a 25% zoom scale, for example, we should lower our resolution by 2 steps so delta will equal -2.
         // (Provided that lowering our resolution 2 steps stays within the limit imposed by minimumResolution.)
-        var delta: UInt = 0
+        var delta: Int = 0
         
         // check if we should decrease our resolution
-        for var thisResolution: UInt = self.minimumResolution; thisResolution < resolution; ++thisResolution{
+        for var thisResolution: Int = self.minimumResolution; thisResolution < resolution; ++thisResolution{
             let thisDelta = thisResolution - resolution
             // we decrease resolution by 1 step if the zoom scale is <= 0.5 (= 2^-1); by 2 steps if <= 0.25 (= 2^-2), and so on
             let scaleCutoff = powf(Float(2), Float(thisDelta))
