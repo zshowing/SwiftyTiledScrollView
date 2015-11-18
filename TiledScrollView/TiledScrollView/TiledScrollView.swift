@@ -104,13 +104,15 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
                 w = _contentSize.width * pow(CGFloat(2), CGFloat(--res))
                 h = _contentSize.height * pow(CGFloat(2), CGFloat(res))
             }
-            
+
             return ++res
             }()
         self.minimumZoomScale = max(CGRectGetWidth(self.frame) / _contentSize.width, CGRectGetHeight(self.frame) / _contentSize.height)
         self.zoomScale = self.minimumZoomScale
         
         self.contentOffset = CGPointMake((_contentSize.width * self.minimumZoomScale - CGRectGetWidth(self.frame)) / 2, (_contentSize.height * self.minimumZoomScale - CGRectGetHeight(self.frame)) / 2)
+        
+        self.updateResolution()
     }
     
     public func dequeueReusableTile() -> UIView?{
@@ -240,6 +242,8 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         firstVisibleColumn = firstNeededCol
         lastVisibleRow  = lastNeededRow
         lastVisibleColumn  = lastNeededCol
+        
+        level = self.currentLevel()
     }
     
     /*****************************************************************************************/

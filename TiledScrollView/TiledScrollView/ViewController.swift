@@ -16,6 +16,7 @@ class ViewController: UIViewController, TiledScrollViewDataSource {
         // Do any additional setup after loading the view, typically from a nib.
         
         tiledScrollView?.tiledScrollViewDataSource = self
+        tiledScrollView?.bouncesZoom = true
         tiledScrollView?.reloadData(Constants.MapSize)
     }
 
