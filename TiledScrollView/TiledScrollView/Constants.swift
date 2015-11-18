@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 struct Constants {
+    static let DoubleTapZoomStep: Int       = 4
     static let MapViewTileSize: CGFloat     = 256.0
     static let MapViewAnnotationTag: Int    = 1024
     static let MapName: String              = "tile"

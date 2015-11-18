@@ -12,32 +12,32 @@ public protocol TiledScrollViewDelegate{
 }
 
 public protocol TiledScrollViewDataSource{
-    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: UInt) -> UIView
+    func tiledScrollView(_scrollView: TiledScrollView, tileForRow row: UInt, column: UInt, resolution: Int) -> UIView
 }
 
 public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
     internal var totalTiles                 = 0
     // we will recycle tiles by removing them from the view and storing them here
     internal var reusableTiles: Set<UIView> = Set<UIView>()
-    internal var maximumResolution: UInt    = 0
-    internal var minimumResolution: UInt    = 0
+    internal var maximumResolution: Int     = 0
+    internal var minimumResolution: Int     = 0
     // no rows or columns are visible at first; note this by making the firsts very high and the lasts very low
     internal var firstVisibleRow: UInt      = UInt.max
     internal var firstVisibleColumn: UInt   = UInt.max
     internal var lastVisibleRow: UInt       = UInt.min
     internal var lastVisibleColumn: UInt    = UInt.min
     internal var level: Int                 = 0
-    internal let tileContainerView: TapDetectingView = {
+    internal let tileContainerView: UIView = {
         // we need a tile container view to hold all the tiles. This is the view that is returned
         // in the -viewForZoomingInScrollView: delegate method, and it also detects taps.
-        let tileContainerView = TapDetectingView.init(frame: CGRectZero)
+        let tileContainerView = UIView.init(frame: CGRectZero)
         tileContainerView.backgroundColor = Color.MapBackgroundColor
         return tileContainerView
     }()
     
     public var tileSize: CGSize = CGSizeMake(Constants.MapViewTileSize, Constants.MapViewTileSize)
     public var mapSize: CGSize  = CGSizeZero
-    public var resolution: UInt = 0
+    public var resolution: Int = 0
     public var tiledScrollViewDelegate: TiledScrollViewDelegate?
     public var tiledScrollViewDataSource: TiledScrollViewDataSource?
     
@@ -45,7 +45,7 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
     // Only override drawRect: if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
     override func drawRect(rect: CGRect) {
-        // Drawing code
+    // Drawing code
     }
     */
     
@@ -73,6 +73,14 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         // We need to return our tileContainerView as the view for zooming, and we also need to receive
         // the scrollViewDidEndZooming: delegate callback so we can update our resolution.
         super.delegate = self
+        
+        let singleTapGR: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
+        singleTapGR.numberOfTapsRequired = 1
+        let doubleTapGR: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handleDoubleTap:")
+        doubleTapGR.numberOfTapsRequired = 2
+        
+        self.addGestureRecognizer(singleTapGR)
+        self.addGestureRecognizer(doubleTapGR)
     }
     
     // MARK: - Public Methods
@@ -86,6 +94,23 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         self.contentSize = _contentSize
         
         self.tileContainerView.frame = CGRectMake(0, 0, _contentSize.width, _contentSize.height)
+        
+        self.minimumResolution = {
+            var w =  _contentSize.width
+            var h = _contentSize.height
+            var res: Int = 0
+            
+            while w > CGRectGetWidth(self.frame) && h > CGRectGetHeight(self.frame){
+                w = _contentSize.width * pow(CGFloat(2), CGFloat(--res))
+                h = _contentSize.height * pow(CGFloat(2), CGFloat(res))
+            }
+            
+            return ++res
+            }()
+        self.minimumZoomScale = max(CGRectGetWidth(self.frame) / _contentSize.width, CGRectGetHeight(self.frame) / _contentSize.height)
+        self.zoomScale = self.minimumZoomScale
+        
+        self.contentOffset = CGPointMake((_contentSize.width * self.minimumZoomScale - CGRectGetWidth(self.frame)) / 2, (_contentSize.height * self.minimumZoomScale - CGRectGetHeight(self.frame)) / 2)
     }
     
     public func dequeueReusableTile() -> UIView?{
@@ -97,13 +122,25 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         return nil
     }
     
+    // MARK: - Tap Detecting Methods
+    public func handleSingleTap(tapGR: UITapGestureRecognizer){
+        
+    }
+    
+    public func handleDoubleTap(tapGR: UITapGestureRecognizer){
+        let tapPoint: CGPoint = tapGR.locationInView(tileContainerView)
+        let newScale = self.zoomScale * CGFloat(Constants.DoubleTapZoomStep)
+        let zoomRect = zoomRectForScale(newScale, center: tapPoint)
+        self.zoomToRect(zoomRect, animated: true)
+    }
+    
     // MARK: - UIScrollView Delegate Overrides
     public func scrollViewDidZoom(scrollView: UIScrollView) {
-
+        
     }
     
     public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
-
+        
     }
     
     public func scrollViewDidEndZooming(scrollView: UIScrollView, withView view: UIView?, atScale scale: CGFloat) {
@@ -111,7 +148,7 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
     }
     
     public func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-
+        
     }
     
     public override func setZoomScale(scale: CGFloat, animated: Bool) {
@@ -178,7 +215,7 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         let firstNeededCol: UInt = max(UInt(0), UInt(floorf(Float(visibleBounds.origin.x / scaledTileWidth))))
         let lastNeededRow: UInt = min(maxRow, UInt(floorf(Float(CGRectGetMaxY(visibleBounds) / scaledTileHeight))))
         let lastNeededCol: UInt = min(maxCol, UInt(floorf(Float(CGRectGetMaxX(visibleBounds) / scaledTileWidth))))
-
+        
         // iterate through needed rows and columns, adding any tiles that are missing
         for var row: UInt = firstNeededRow; row <= lastNeededRow; ++row{
             for var col: UInt = firstNeededCol; col <= lastNeededCol; ++col{
@@ -215,10 +252,10 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
         // delta will store the number of steps we should change our resolution by. If we've fallen below
         // a 25% zoom scale, for example, we should lower our resolution by 2 steps so delta will equal -2.
         // (Provided that lowering our resolution 2 steps stays within the limit imposed by minimumResolution.)
-        var delta: UInt = 0
+        var delta: Int = 0
         
         // check if we should decrease our resolution
-        for var thisResolution: UInt = self.minimumResolution; thisResolution < resolution; ++thisResolution{
+        for var thisResolution: Int = self.minimumResolution; thisResolution < resolution; ++thisResolution{
             let thisDelta = thisResolution - resolution
             // we decrease resolution by 1 step if the zoom scale is <= 0.5 (= 2^-1); by 2 steps if <= 0.25 (= 2^-2), and so on
             let scaleCutoff = powf(Float(2), Float(thisDelta))
@@ -268,7 +305,7 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
             self.resetTiles()
         }
     }
-
+    
     
     // MARK: - Utilities
     internal func annotateTile(_tile: UIView){
@@ -301,5 +338,20 @@ public class TiledScrollView: UIScrollView, UIScrollViewDelegate {
             return -2
         }
         return -3
+    }
+    
+    internal func zoomRectForScale(_scale: CGFloat, center: CGPoint) -> CGRect{
+        var zoomRect: CGRect = CGRectZero
+        // the zoom rect is in the content view's coordinates.
+        //    At a zoom scale of 1.0, it would be the size of the imageScrollView's bounds.
+        //    As the zoom scale decreases, so more content is visible, the size of the rect grows.
+        zoomRect.size.height = self.frame.size.height / _scale
+        zoomRect.size.width = self.frame.size.width / _scale
+        
+        // choose an origin so as to get the right center.
+        zoomRect.origin.x = center.x - zoomRect.size.width / 2
+        zoomRect.origin.y = center.y - zoomRect.size.height / 2
+        
+        return zoomRect
     }
 }

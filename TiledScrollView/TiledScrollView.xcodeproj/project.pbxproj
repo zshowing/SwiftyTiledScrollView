@@ -12,7 +12,6 @@
 		5456DE881BF496FF0091D88F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5456DE861BF496FF0091D88F /* Main.storyboard */; };
 		5456DE8A1BF496FF0091D88F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5456DE891BF496FF0091D88F /* Assets.xcassets */; };
 		5456DE8D1BF496FF0091D88F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5456DE8B1BF496FF0091D88F /* LaunchScreen.storyboard */; };
-		5456DE961BF497620091D88F /* TapDetectingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5456DE941BF497620091D88F /* TapDetectingView.swift */; };
 		5456DE971BF497620091D88F /* TiledScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5456DE951BF497620091D88F /* TiledScrollView.swift */; };
 		5456DE991BF497E60091D88F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5456DE981BF497E60091D88F /* Constants.swift */; };
 		5456DE9B1BF498AE0091D88F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5456DE9A1BF498AE0091D88F /* UIKit.framework */; };
@@ -100,7 +99,6 @@
 		5456DE891BF496FF0091D88F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5456DE8C1BF496FF0091D88F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5456DE8E1BF496FF0091D88F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5456DE941BF497620091D88F /* TapDetectingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapDetectingView.swift; sourceTree = "<group>"; };
 		5456DE951BF497620091D88F /* TiledScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TiledScrollView.swift; sourceTree = "<group>"; };
 		5456DE981BF497E60091D88F /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5456DE9A1BF498AE0091D88F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -213,7 +211,6 @@
 			isa = PBXGroup;
 			children = (
 				5456DE9C1BF49B600091D88F /* Tiles */,
-				5456DE941BF497620091D88F /* TapDetectingView.swift */,
 				5456DE951BF497620091D88F /* TiledScrollView.swift */,
 				5456DE821BF496FF0091D88F /* AppDelegate.swift */,
 				5456DE841BF496FF0091D88F /* ViewController.swift */,
@@ -456,7 +453,6 @@
 				5456DE971BF497620091D88F /* TiledScrollView.swift in Sources */,
 				5456DE851BF496FF0091D88F /* ViewController.swift in Sources */,
 				5456DE831BF496FF0091D88F /* AppDelegate.swift in Sources */,
-				5456DE961BF497620091D88F /* TapDetectingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,6 +600,7 @@
 				5456DE931BF496FF0091D88F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
